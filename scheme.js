@@ -8,7 +8,10 @@
  *
  * Геометрия трубопроводов и «зигзагов» внутри теплообменников подобрана
  * вручную так, чтобы концы труб совпадали по высоте с концами зигзагов
- * (см. историю правок прототипа) — не пересчитывается автоматически.
+ * (см. историю правок прототипа) — не пересчитывается автоматически. Верхняя
+ * и нижняя трубы (вход/выход обеих ступеней) — прямые по всей длине, без
+ * уступа, на высоте зигзага (74/448); окошки полей у них подобраны вручную
+ * так, чтобы стоять по обе стороны от линии.
  *
  * Зависит от calc.js (передаётся результат расчёта c), units.js и format.js
  * (конвертация единиц и форматирование подписей на схеме).
@@ -95,7 +98,7 @@
       (state.scheme === 'monoblock' ?
         '<rect class="monoblock-box" x="276" y="10" width="168" height="464" rx="10"/>' +
         '<rect x="317" y="3" width="86" height="14" fill="var(--surface)"/>' +
-        '<text x="360" y="14" text-anchor="middle" class="side-title" style="fill:var(--text-muted); font-size:11px;">МОНОБЛОК</text>'
+        '<text x="360" y="14" text-anchor="middle" class="side-title" style="fill:var(--text-muted); font-size:11px; opacity:.55;">МОНОБЛОК</text>'
         : '') +
 
       // теплообменники — подпись ступени не зависит от компоновки (раздельно/моноблок),
@@ -114,12 +117,13 @@
 
       // RED — тепловая сеть (греющая сторона): T1/G1 вход в II ступень, T11 выход II ступени,
       // Tсо/Gсо — возврат от системы отопления (подмес), T21 — смесь на входе I ступени, T2/G2 — выход в ТС.
-      // Трубы подходят к блоку на той же высоте, где заканчивается зигзаг (74/128 у II ступени, 394/448 у I
-      // ступени); там, где по пути стоит окошко поля (T1, T2, T3, B1), труба идёт коротким скруглённым
-      // уступом у самого блока, а дальше — на прежней высоте, чтобы не задевать текст в окошках.
-      '<path class="pipe pipe-hot flow" marker-end="url(#arrow)" d="' + rp([[0, 93], [250, 93], [250, 74], [290, 74]], 10) + '"/>' +
-      field(38, 64, 'T1', state.t1Break.toFixed(1), '°C', 'hot') +
-      field(38, 100, 'G1', format.fmtFlow(toDisplayFlow(c.f14)), flowUnitLabel(), 'hot') +
+      // Верхняя и нижняя трубы (вход в II ступень и выход из I ступени) — прямые по всей длине,
+      // на той же высоте, где заканчивается зигзаг внутри блока (74 сверху, 448 снизу) — без уступа,
+      // как в референсе; окошки полей (T1/G1, T2/G2) сдвинуты вслед за трубой, чтобы по-прежнему
+      // стоять по обе стороны от линии.
+      '<path class="pipe pipe-hot flow" marker-end="url(#arrow)" d="' + rp([[0, 74], [290, 74]], 10) + '"/>' +
+      field(38, 45, 'T1', state.t1Break.toFixed(1), '°C', 'hot') +
+      field(38, 81, 'G1', format.fmtFlow(toDisplayFlow(c.f14)), flowUnitLabel(), 'hot') +
 
       '<path class="pipe pipe-hot flow" d="' + rp([[290, 128], [230, 128], [230, 263]], 12) + '"/>' +
       field(110, 159, 'T11', state.e14.toFixed(1), '°C', 'hot') +
@@ -132,20 +136,22 @@
       '<path class="pipe pipe-hot flow" marker-end="url(#arrow)" d="' + rp([[230, 263], [230, 394], [290, 394]], 12) + '"/>' +
       field(110, 319, 'T21', c.t14.toFixed(1), '°C', 'hot') +
 
-      '<path class="pipe pipe-hot flow" marker-end="url(#arrow)" d="' + rp([[290, 448], [250, 448], [250, 429], [0, 429]], 10) + '"/>' +
-      field(38, 400, 'T2', c.u14.toFixed(1), '°C', 'hot') +
-      field(38, 436, 'G2', format.fmtFlow(toDisplayFlow(c.v14)), flowUnitLabel(), 'hot') +
+      '<path class="pipe pipe-hot flow" marker-end="url(#arrow)" d="' + rp([[290, 448], [0, 448]], 10) + '"/>' +
+      field(38, 419, 'T2', c.u14.toFixed(1), '°C', 'hot') +
+      field(38, 455, 'G2', format.fmtFlow(toDisplayFlow(c.v14)), flowUnitLabel(), 'hot') +
 
-      // BLUE — ГВС (нагреваемая сторона): B1/GГВС вход в I ступень, B11 — между ступенями, T3 — выход к потребителю
-      '<path class="pipe pipe-cold flow" marker-end="url(#arrow)" d="' + rp([[680, 429], [470, 429], [470, 448], [430, 448]], 10) + '"/>' +
-      field(586, 400, 'B1', state.tCold.toFixed(1), '°C', 'cold') +
-      field(586, 436, 'GГВС', format.fmtFlow(toDisplayFlow(c.z14)), flowUnitLabel(), 'cold') +
+      // BLUE — ГВС (нагреваемая сторона): B1/GГВС вход в I ступень, B11 — между ступенями, T3 — выход к потребителю.
+      // Верхняя и нижняя трубы здесь тоже прямые (см. комментарий у греющей стороны выше) —
+      // окошки B1/GГВС и T3 сдвинуты симметрично левой стороне.
+      '<path class="pipe pipe-cold flow" marker-end="url(#arrow)" d="' + rp([[680, 448], [430, 448]], 10) + '"/>' +
+      field(586, 419, 'B1', state.tCold.toFixed(1), '°C', 'cold') +
+      field(586, 455, 'GГВС', format.fmtFlow(toDisplayFlow(c.z14)), flowUnitLabel(), 'cold') +
 
       '<path class="pipe pipe-cold flow" marker-end="url(#arrow)" d="' + rp([[430, 394], [490, 394], [490, 128], [430, 128]], 12) + '"/>' +
       field(545, 252, 'B11', state.y14.toFixed(1), '°C', 'cold') +
 
-      '<path class="pipe pipe-cold flow" marker-end="url(#arrow)" d="' + rp([[430, 74], [470, 74], [470, 95], [680, 95]], 10) + '"/>' +
-      field(586, 64, 'T3', state.tHot.toFixed(1), '°C', 'cold') +
+      '<path class="pipe pipe-cold flow" marker-end="url(#arrow)" d="' + rp([[430, 74], [680, 74]], 10) + '"/>' +
+      field(586, 45, 'T3', state.tHot.toFixed(1), '°C', 'cold') +
       '</g>' +
 
     '</svg>';
