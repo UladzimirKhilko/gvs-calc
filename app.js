@@ -287,14 +287,19 @@
           { label: 'Т сетевой воды после II ступени (E14), °C', value: fmt(state.e14) },
           { label: 'Т воды ГВС после I ступени (Y14), °C', value: fmt(state.y14) }
         ],
-        summaryHeaders: ['Показатель', 'II ст. — Греющая', 'II ст. — Нагреваемая', 'I ст. — Греющая', 'I ст. — Нагреваемая'],
+        // Тепловая нагрузка Q — одно значение на ступень (Греющая и Нагреваемая по тепловому
+        // балансу совпадают, см. #results-body в render() выше), поэтому в отчёте эта строка
+        // объединяет обе колонки ступени в одну ячейку — так же, как на экране в программе,
+        // а не два одинаковых числа в разных колонках.
         summaryRows: [
-          ['Тепловая нагрузка Q, ' + powerUnitLabel(),
-            fmtPower(toDisplayPower(c.g14)) + ' (' + fmt(pctII) + '%)', fmtPower(toDisplayPower(c.g14)) + ' (' + fmt(pctII) + '%)',
-            fmtPower(toDisplayPower(c.w14)) + ' (' + fmt(pctI) + '%)', fmtPower(toDisplayPower(c.w14)) + ' (' + fmt(pctI) + '%)'],
-          ['Температура на входе, °C', fmt(state.t1Break), fmt(state.y14), fmt(c.t14), fmt(state.tCold)],
-          ['Температура на выходе, °C', fmt(state.e14), fmt(state.tHot), fmt(c.u14), fmt(state.y14)],
-          ['Расход, ' + flowUnitLabel(), fmtFlow(toDisplayFlow(c.f14)), fmtFlow(toDisplayFlow(c.z14)), fmtFlow(toDisplayFlow(c.v14)), fmtFlow(toDisplayFlow(c.z14))]
+          {
+            label: 'Тепловая нагрузка Q, ' + powerUnitLabel(), merged: true,
+            ii: fmtPower(toDisplayPower(c.g14)) + ' (' + fmt(pctII) + '%)',
+            i: fmtPower(toDisplayPower(c.w14)) + ' (' + fmt(pctI) + '%)'
+          },
+          { label: 'Температура на входе, °C', merged: false, iiHot: fmt(state.t1Break), iiCold: fmt(state.y14), iHot: fmt(c.t14), iCold: fmt(state.tCold) },
+          { label: 'Температура на выходе, °C', merged: false, iiHot: fmt(state.e14), iiCold: fmt(state.tHot), iHot: fmt(c.u14), iCold: fmt(state.y14) },
+          { label: 'Расход, ' + flowUnitLabel(), merged: false, iiHot: fmtFlow(toDisplayFlow(c.f14)), iiCold: fmtFlow(toDisplayFlow(c.z14)), iHot: fmtFlow(toDisplayFlow(c.v14)), iCold: fmtFlow(toDisplayFlow(c.z14)) }
         ],
         heatingRows: [
           ['Тепловая нагрузка Q, ' + powerUnitLabel(), fmtPower(toDisplayPower(state.qOt)), fmtPower(toDisplayPower(c.o14))],
