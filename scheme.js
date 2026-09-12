@@ -71,23 +71,27 @@
     var subII = format.fmtPower(toDisplayPower(c.g14)) + ' ' + powerUnitLabel() + ' · ' + format.fmt(pctII) + ' %';
     var subI = format.fmtPower(toDisplayPower(c.w14)) + ' ' + powerUnitLabel() + ' · ' + format.fmt(pctI) + ' %';
 
-    // общая тепловая нагрузка ГВС — отдельное окошко над схемой, по центру между заголовками сторон
+    // общая тепловая нагрузка ГВС — окошко на одном уровне с заголовками сторон (между ними),
+    // не выше их, как раньше; заголовки сторон при этом раздвинуты дальше влево/вправо,
+    // чтобы освободить место в середине строки под это окошко
     var totalGvsBox = '' +
-      '<rect x="240" y="6" width="200" height="40" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>' +
-      '<text x="340" y="20" text-anchor="middle" class="lbl-muted" style="font-size:9.5px; letter-spacing:.05em; text-transform:uppercase;">ГВС — общая нагрузка</text>' +
-      '<text x="340" y="38" text-anchor="middle" style="font-family:&quot;PT Mono&quot;,monospace; font-weight:700; font-size:15px; fill:var(--accent);">' +
+      '<rect x="240" y="34" width="200" height="40" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>' +
+      '<text x="340" y="48" text-anchor="middle" class="lbl-muted" style="font-size:9.5px; letter-spacing:.05em; text-transform:uppercase;">ГВС — общая нагрузка</text>' +
+      '<text x="340" y="66" text-anchor="middle" style="font-family:&quot;PT Mono&quot;,monospace; font-weight:700; font-size:15px; fill:var(--accent);">' +
         format.fmtPower(toDisplayPower(state.qGvs)) + ' ' + powerUnitLabel() +
       '</text>';
 
     var svg = '' +
-    '<svg viewBox="0 0 680 570" role="img" aria-label="Схема двухступенчатой смешанной подачи ГВС с температурами и расходами">' +
+    '<svg viewBox="0 0 680 582" role="img" aria-label="Схема двухступенчатой смешанной подачи ГВС с температурами и расходами">' +
       '<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="context-stroke"/></marker></defs>' +
 
       totalGvsBox +
-      '<text x="165" y="60" text-anchor="middle" class="side-title" style="fill:var(--flow-hot)">ГРЕЮЩАЯ СТОРОНА</text>' +
-      '<text x="515" y="60" text-anchor="middle" class="side-title" style="fill:var(--flow-cold)">НАГРЕВАЕМАЯ СТОРОНА</text>' +
-      // всё остальное сдвинуто вниз — освобождает строки сверху под окошко общей нагрузки ГВС и подпись «МОНОБЛОК»
-      '<g transform="translate(0,70)">' +
+      '<text x="110" y="60" text-anchor="middle" class="side-title" style="fill:var(--flow-hot)">ГРЕЮЩАЯ СТОРОНА</text>' +
+      '<text x="570" y="60" text-anchor="middle" class="side-title" style="fill:var(--flow-cold)">НАГРЕВАЕМАЯ СТОРОНА</text>' +
+      // всё остальное сдвинуто вниз чуть больше, чем раньше (82 вместо 70) — окошко общей нагрузки ГВС
+      // теперь ниже (на уровне заголовков сторон), и без этого запаса подпись «МОНОБЛОК» оказывалась
+      // впритык под окошком
+      '<g transform="translate(0,82)">' +
       (state.scheme === 'monoblock' ?
         '<rect class="monoblock-box" x="276" y="10" width="168" height="464" rx="10"/>' +
         '<rect x="317" y="3" width="86" height="14" fill="var(--surface)"/>' +
