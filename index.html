@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Разбивка ГВС — БСИ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Mono&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <h1>Разбивка тепловой нагрузки ГВС</h1>
+  <p class="subtitle">Двухступенчатая смешанная схема — расчёт полностью повторяет формулы листа «Методика» файла «Разбивка ГВС для 2-х ступ. смеш..xls».</p>
+
+  <div class="grid">
+    <div class="col-left">
+      <div class="card">
+        <h2><span class="eyebrow">Шаг 1</span> Исходные данные</h2>
+        <div class="units-row">
+          <label>Единицы мощности
+            <select id="power-unit-select">
+              <option value="W">Вт</option>
+              <option value="kW">кВт</option>
+              <option value="MW">МВт</option>
+              <option value="kcal_h">ккал/ч</option>
+              <option value="Mcal_h" selected>Мкал/ч</option>
+              <option value="Gcal_h">Гкал/ч</option>
+            </select>
+          </label>
+          <label>Единицы расхода
+            <select id="flow-unit-select">
+              <option value="kg_s">кг/с</option>
+              <option value="t_h" selected>т/ч</option>
+              <option value="m3_h">м³/ч</option>
+              <option value="l_h">л/ч</option>
+              <option value="l_s">л/с</option>
+            </select>
+          </label>
+        </div>
+        <p class="units-note">Расчёт всегда идёт в Мкал/ч и т/ч — при смене единиц значения пересчитываются автоматически.</p>
+
+        <div id="input-errors" class="error-panel" hidden>
+          <p>Проверьте исходные данные:</p>
+          <ul id="input-errors-list"></ul>
+        </div>
+
+        <div class="input-group heating">
+          <p class="input-group-title">Система отопления</p>
+          <div id="inputs-heating"></div>
+        </div>
+
+        <div class="gvs-block">
+          <p class="gvs-block-title">Система ГВС</p>
+          <div id="inputs-gvs-top"></div>
+          <div class="gvs-split">
+            <div class="input-group network gvs-sub">
+              <p class="input-group-title">Греющая</p>
+              <div id="inputs-gvs-hot"></div>
+            </div>
+            <div class="input-group dhw gvs-sub">
+              <p class="input-group-title">Нагреваемая</p>
+              <div id="inputs-gvs-cold"></div>
+            </div>
+          </div>
+        </div>
+
+        <details id="customer-details">
+          <summary>Сведения о заказчике</summary>
+          <div class="customer-fields">
+            <input type="text" id="cust-name" placeholder="Наименование фирмы">
+            <input type="text" id="cust-contact" placeholder="Контактное лицо">
+            <input type="text" id="cust-object" placeholder="Объект">
+          </div>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2><span class="eyebrow">Шаг 2</span> Подбор параметров</h2>
+        <div class="mode-tabs" role="tablist">
+          <button type="button" id="tab-manual" role="tab" aria-selected="true">Ручной</button>
+          <button type="button" id="tab-auto" role="tab" aria-selected="false">Автоматический</button>
+        </div>
+
+        <div id="manual-controls">
+          <div class="slider-row">
+            <div class="top"><label for="e14">Т сетевой воды после II ступени</label><output id="e14-val">34.0</output></div>
+            <input type="range" id="e14" min="15" max="55" step="0.1" value="34">
+            <div class="range-hint"><span>15 °C</span><span>норма 32–38 °C</span><span>55 °C</span></div>
+          </div>
+          <div class="slider-row">
+            <div class="top"><label for="y14">Т воды ГВС после I ступени (промежуточная)</label><output id="y14-val">30.0</output></div>
+            <input type="range" id="y14" min="6" max="54" step="0.1" value="30">
+            <div class="range-hint"><span>6 °C</span><span></span><span>54 °C</span></div>
+          </div>
+        </div>
+
+        <div id="auto-controls" hidden>
+          <div class="field-row">
+            <label for="target-u14">Целевая Т возврата в тепловую сеть, °C</label>
+            <input type="text" id="target-u14" value="30">
+          </div>
+          <div class="field-row">
+            <label for="y14-auto">Т воды ГВС после I ступени, °C</label>
+            <input type="text" id="y14-auto" value="30">
+          </div>
+          <button class="primary" id="solve-btn" type="button">Подобрать температуру</button>
+          <p class="field-note" id="solve-status" style="text-align:left;"></p>
+        </div>
+
+        <p style="margin-top:14px;"><span class="badge" id="range-badge">—</span></p>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="card">
+        <div class="schema-head">
+          <h2 style="margin:0;"><span class="eyebrow">Схема</span> Двухступенчатая смешанная</h2>
+          <label class="switch">
+            <input type="checkbox" class="switch-input" id="anim-toggle" checked>
+            <span class="switch-track" aria-hidden="true"></span>
+            Анимация потоков
+          </label>
+        </div>
+        <div class="scheme-radios" role="radiogroup" aria-label="Вариант компоновки" style="margin-top:10px;">
+          <label><input type="radio" name="scheme" value="separate" checked> Раздельные теплообменники</label>
+          <label><input type="radio" name="scheme" value="monoblock"> Моноблок</label>
+        </div>
+        <figure id="scheme-figure"></figure>
+      </div>
+
+      <div class="card">
+        <h2><span class="eyebrow">Результат</span> Сводная таблица ГВС</h2>
+        <div style="overflow-x:auto;">
+          <table class="result-table">
+            <colgroup>
+              <col style="width:32%">
+              <col style="width:17%"><col style="width:17%">
+              <col style="width:17%"><col style="width:17%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th rowspan="2" class="corner">Показатель</th>
+                <th colspan="2" class="stage-head">II ступень</th>
+                <th colspan="2" class="stage-head">I ступень</th>
+              </tr>
+              <tr>
+                <th class="side-head hot">Греющая</th>
+                <th class="side-head cold">Нагреваемая</th>
+                <th class="side-head hot">Греющая</th>
+                <th class="side-head cold">Нагреваемая</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+        <div class="export-row">
+          <button class="secondary" id="print-btn" type="button">Печать / PDF</button>
+          <button class="secondary" id="docx-btn" type="button">Экспорт в DOCX</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="eyebrow">Справочно</span> Отопление</h2>
+        <div style="overflow-x:auto;">
+          <table class="result-table heating-table">
+            <colgroup>
+              <col style="width:40%"><col style="width:30%"><col style="width:30%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="corner">Показатель</th>
+                <th class="side-head heat">Зимний период</th>
+                <th class="side-head heat">Точка излома</th>
+              </tr>
+            </thead>
+            <tbody id="heating-results-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="footnote">Внутренний расчётный инструмент ОАО «БПА БЕЛСТРОЙИНДУСТРИЯ». Подбор конкретной модели теплообменника в расчёт не входит — только разбивка тепловой нагрузки ГВС между ступенями.</p>
+</div>
+
+<script src="calc.js"></script>
+<script src="units.js"></script>
+<script src="format.js"></script>
+<script src="solver.js"></script>
+<script src="validate.js"></script>
+<script src="scheme.js"></script>
+<script src="zip.js"></script>
+<script src="export-docx.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

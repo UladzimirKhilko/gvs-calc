@@ -1,0 +1,204 @@
+:root{
+  --bg:#eef2f0;
+  --surface:#ffffff;
+  --surface-2:#f5f8f6;
+  --border:#d7ded9;
+  --text:#182420;
+  --text-muted:#5c6b65;
+  --accent:#2f6e62;
+  --accent-contrast:#ffffff;
+  --flow-hot:#c0392b;
+  --flow-cold:#2465a6;
+  --warn-bg:#fbf1d9;
+  --warn-text:#8a6416;
+  --error-bg:#fbe4e1;
+  --error-text:#a3352b;
+  --track-off:#c7d0cb;
+  --shadow: 0 1px 2px rgba(20,30,26,.06), 0 6px 16px rgba(20,30,26,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12181a; --surface:#1a2224; --surface-2:#1e2729; --border:#33403f;
+    --text:#e7edea; --text-muted:#9fb1ab; --accent:#54b09d; --accent-contrast:#0b1210;
+    --flow-hot:#e2594c; --flow-cold:#6ba6e0; --warn-bg:#3a3320; --warn-text:#e3c46a;
+    --error-bg:#3a201d; --error-text:#e2857a;
+    --track-off:#3a4644; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12181a; --surface:#1a2224; --surface-2:#1e2729; --border:#33403f;
+  --text:#e7edea; --text-muted:#9fb1ab; --accent:#54b09d; --accent-contrast:#0b1210;
+  --flow-hot:#e2594c; --flow-cold:#6ba6e0; --warn-bg:#3a3320; --warn-text:#e3c46a;
+  --error-bg:#3a201d; --error-text:#e2857a;
+  --track-off:#3a4644; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 20px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box;}
+body{background:var(--bg); color:var(--text); font-family:"PT Sans", "PT Sans Cyrillic", Arial, sans-serif;}
+.app{max-width:1180px; margin:0 auto; padding:28px 16px 60px;}
+
+h1{font-size:1.5rem; font-weight:700; margin:0 0 4px; text-wrap:balance;}
+.subtitle{color:var(--text-muted); font-size:.92rem; margin:0 0 22px; max-width:64ch;}
+
+.grid{display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start;}
+@media (max-width:820px){ .grid{grid-template-columns:1fr;} }
+
+.card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; box-shadow:var(--shadow);}
+.card + .card{margin-top:16px;}
+.card h2{font-size:.95rem; font-weight:700; margin:0 0 14px; display:flex; align-items:center; gap:8px;}
+.card h2 .eyebrow{font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); font-weight:700;}
+
+.field-row{display:grid; grid-template-columns:1fr 84px; gap:10px; align-items:center; margin-bottom:10px;}
+.field-row label{font-size:.82rem; color:var(--text-muted);}
+.field-row input{width:100%; padding:7px 8px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--text); font-family:"PT Mono",monospace; font-size:.86rem; text-align:right;}
+.field-row input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+.field-note{font-size:.72rem; color:var(--text-muted); margin:-6px 0 12px; text-align:right;}
+.field-warn{color:var(--warn-text);}
+/* .field-note обычно "подтягивается" отрицательным отступом к полю ввода над ним; после кнопки
+   это наезжает на неё — сообщению после кнопки нужен обычный отступ сверху, а не отрицательный */
+#solve-status{margin:10px 0 0;}
+
+.input-group{border-left:3px solid var(--group-color); background:var(--group-bg); border-radius:0 8px 8px 0; padding:12px 12px 2px 14px; margin-bottom:12px;}
+.input-group.network{--group-color:var(--flow-hot); --group-bg:color-mix(in srgb, var(--flow-hot) 8%, var(--surface-2));}
+.input-group.heating{--group-color:var(--warn-text); --group-bg:color-mix(in srgb, var(--warn-text) 12%, var(--surface-2));}
+.input-group.dhw{--group-color:var(--flow-cold); --group-bg:color-mix(in srgb, var(--flow-cold) 8%, var(--surface-2));}
+.input-group-title{font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--group-color); margin:0 0 10px;}
+.input-group .field-row input{background:var(--surface);}
+.input-group .field-col input{background:var(--surface);}
+.input-group.gvs-sub{margin-bottom:0;}
+
+.units-row{display:flex; gap:16px; flex-wrap:wrap; margin-bottom:6px; font-size:.78rem; color:var(--text-muted);}
+.units-row label{display:flex; align-items:center; gap:6px;}
+.units-row select{padding:5px 7px; border:1px solid var(--border); border-radius:7px; background:var(--surface-2); color:var(--text); font-family:inherit; font-size:.8rem;}
+.units-note{font-size:.7rem; color:var(--text-muted); margin:0 0 14px;}
+
+.gvs-block{
+  border:1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius:12px; padding:14px 16px 4px; margin-bottom:12px;
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--flow-hot) 7%, transparent) 0%,
+      transparent 42%,
+      transparent 58%,
+      color-mix(in srgb, var(--flow-cold) 7%, transparent) 100%),
+    var(--surface-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.gvs-block > .field-row input{background:var(--surface);}
+.gvs-block-title{font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); margin:0 0 10px;}
+.gvs-split{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:2px;}
+@media (max-width:400px){ .gvs-split{grid-template-columns:1fr;} }
+
+.field-col{margin-bottom:10px;}
+.field-col label{display:block; font-size:.76rem; color:var(--text-muted); margin-bottom:4px; line-height:1.25;}
+.field-col input{width:100%; padding:7px 8px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--text); font-family:"PT Mono",monospace; font-size:.86rem; text-align:right;}
+.field-col input:focus{outline:2px solid var(--accent); outline-offset:1px;}
+
+/* поле с ошибкой валидации (см. validate.js / app.js) — не блокирует ввод, только подсвечивает */
+input.field-error{outline:2px solid var(--error-text); outline-offset:1px;}
+
+fieldset{border:0; padding:0; margin:0 0 16px;}
+.customer-fields{display:grid; gap:8px;}
+.customer-fields input{padding:7px 9px; border:1px solid var(--border); border-radius:8px; background:var(--surface-2); color:var(--text); font-size:.82rem; font-family:inherit;}
+details summary{cursor:pointer; font-size:.85rem; color:var(--text-muted); font-weight:700; margin-bottom:10px;}
+
+.mode-tabs{display:flex; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:4px; margin-bottom:14px;}
+.mode-tabs button{flex:1; border:0; background:transparent; padding:7px 6px; border-radius:7px; font-size:.82rem; font-family:inherit; color:var(--text-muted); cursor:pointer;}
+.mode-tabs button[aria-selected="true"]{background:var(--accent); color:var(--accent-contrast); font-weight:700;}
+
+.slider-row{margin-bottom:14px;}
+.slider-row .top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;}
+.slider-row label{font-size:.82rem; color:var(--text-muted);}
+.slider-row output{font-family:"PT Mono",monospace; font-weight:700; font-size:.95rem;}
+.slider-row input[type=range]{width:100%; accent-color:var(--accent);}
+.range-hint{font-size:.7rem; color:var(--text-muted); display:flex; justify-content:space-between; margin-top:2px;}
+
+button.primary{width:100%; background:var(--accent); color:var(--accent-contrast); border:0; border-radius:9px; padding:10px 14px; font-family:inherit; font-weight:700; font-size:.88rem; cursor:pointer;}
+button.primary:hover{filter:brightness(1.06);}
+button.secondary{background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:9px; padding:8px 14px; font-family:inherit; font-weight:700; font-size:.82rem; cursor:pointer;}
+button.secondary:hover{filter:brightness(1.04);}
+.export-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+.export-row button{flex:1;}
+
+.badge{display:inline-flex; align-items:center; gap:6px; font-size:.74rem; padding:3px 9px; border-radius:99px; font-weight:700;}
+.badge.ok{background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accent);}
+.badge.warn{background:var(--warn-bg); color:var(--warn-text);}
+
+.error-panel{background:var(--error-bg); color:var(--error-text); border-radius:8px; padding:10px 12px; margin:0 0 14px; font-size:.8rem;}
+.error-panel p{margin:0 0 4px; font-weight:700;}
+.error-panel ul{margin:0; padding-left:18px;}
+
+/* schema card */
+.schema-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+.scheme-radios{display:flex; gap:14px; font-size:.8rem; color:var(--text-muted);}
+.scheme-radios label{display:flex; gap:5px; align-items:center; cursor:pointer;}
+
+.switch{display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:.8rem; color:var(--text-muted); user-select:none;}
+.switch-input{position:absolute; opacity:0; width:1px; height:1px;}
+.switch-track{width:38px; height:22px; border-radius:99px; background:var(--track-off); position:relative; transition:background .15s ease; flex-shrink:0;}
+.switch-track::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.25); transition:transform .15s ease;}
+.switch-input:checked + .switch-track{background:var(--accent);}
+.switch-input:checked + .switch-track::after{transform:translateX(16px);}
+.switch-input:focus-visible + .switch-track{outline:2px solid var(--accent); outline-offset:2px;}
+
+figure{margin:14px 0 6px;}
+figcaption{font-size:.74rem; color:var(--text-muted); margin-top:8px;}
+svg{max-width:100%; height:auto; display:block; margin:0 auto;}
+.hx-box{fill:var(--surface-2); stroke:var(--text-muted);}
+.lbl{font-family:"PT Mono",monospace; font-size:11px; fill:var(--text);}
+.lbl-title{font-family:"PT Sans",sans-serif; font-size:12px; font-weight:700; fill:var(--text);}
+.lbl-muted{font-family:"PT Sans",sans-serif; font-size:10.5px; fill:var(--text-muted);}
+.pipe{fill:none; stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round;}
+.pipe-hot{stroke:var(--flow-hot);}
+.pipe-cold{stroke:var(--flow-cold);}
+.node-dot{fill:var(--text-muted);}
+.field-box{fill:var(--surface); stroke-width:1.3;}
+.field-box.hot{stroke:var(--flow-hot);}
+.field-box.cold{stroke:var(--flow-cold);}
+.field-val{font-family:"PT Mono",monospace; font-size:11.5px; font-weight:700; fill:var(--text);}
+.side-title{font-family:"PT Sans",sans-serif; font-size:13px; font-weight:700; letter-spacing:.02em;}
+.lbl-accent{font-family:"PT Mono",monospace; font-size:10px; font-weight:700; fill:var(--accent);}
+.monoblock-box{fill:none; stroke:var(--text-muted); stroke-width:1.3; stroke-dasharray:5 4;}
+.flowing .flow{stroke-dasharray:7 6; animation:flowmove 1s linear infinite;}
+@keyframes flowmove{ to { stroke-dashoffset:-13; } }
+@media (prefers-reduced-motion:reduce){ .flowing .flow{stroke-dasharray:none; animation:none;} }
+
+table{width:100%; border-collapse:collapse; font-size:.86rem;}
+thead th{background:var(--surface-2); color:var(--text-muted); text-transform:uppercase; font-size:.68rem; letter-spacing:.05em; text-align:left; padding:9px 10px; border-bottom:1px solid var(--border);}
+thead th.num, td.num{text-align:right; font-variant-numeric:tabular-nums;}
+tbody td{padding:9px 10px; border-bottom:1px solid var(--border); font-family:"PT Mono",monospace; font-size:.85rem; text-align:right; font-variant-numeric:tabular-nums;}
+tbody td.name{font-family:"PT Sans",sans-serif; font-size:.83rem; text-align:left; color:var(--text-muted);}
+tbody tr:last-child td{border-bottom:0;}
+
+/* result-table — те же цветовые группы, что и в исходных данных (Греющая=красный, Нагреваемая=синий, Отопление=жёлтый);
+   table-layout:fixed + colgroup ниже держат столбцы Греющая/Нагреваемая одинаковой ширины, цифры — по центру */
+.result-table{table-layout:fixed;}
+.result-table td.num{text-align:center;}
+.result-table th.corner{vertical-align:bottom;}
+.result-table th.stage-head{text-align:center; background:var(--surface-2); border-left:1px solid var(--border); border-bottom:1px solid var(--border);}
+.result-table th.side-head{text-align:center; border-left:1px solid var(--border); font-size:.64rem; letter-spacing:.02em; line-height:1.25; padding:8px 4px; overflow-wrap:break-word; word-break:break-word;}
+.result-table th.side-head.hot{color:var(--flow-hot); background:color-mix(in srgb, var(--flow-hot) 10%, var(--surface-2));}
+.result-table th.side-head.cold{color:var(--flow-cold); background:color-mix(in srgb, var(--flow-cold) 10%, var(--surface-2));}
+.result-table th.side-head.heat{color:var(--warn-text); background:color-mix(in srgb, var(--warn-text) 14%, var(--surface-2));}
+.result-table td.col-stage{background:color-mix(in srgb, var(--accent) 7%, transparent); border-left:1px solid var(--border); font-weight:700; color:var(--accent);}
+.result-table td.col-hot{background:color-mix(in srgb, var(--flow-hot) 4%, transparent); border-left:1px solid var(--border);}
+.result-table td.col-cold{background:color-mix(in srgb, var(--flow-cold) 4%, transparent); border-left:1px solid var(--border);}
+.result-table td.col-heat{background:color-mix(in srgb, var(--warn-text) 5%, transparent); border-left:1px solid var(--border);}
+.heating-table th.corner{background:var(--surface-2);}
+
+.footnote{font-size:.74rem; color:var(--text-muted); margin-top:22px; max-width:80ch;}
+
+/* печать (Шаг «Печать в PDF»): убираем только элементы управления — сами исходные
+   данные, сводные таблицы и схема остаются в распечатке как отчёт по объекту.
+   Раскрытие <details> «Сведения о заказчике» перед печатью делает app.js
+   (beforeprint/afterprint) — чистым CSS этого не сделать. */
+@media print{
+  body{background:#fff; color:#000;}
+  .card{box-shadow:none; border:1px solid #ccc; break-inside:avoid;}
+  .mode-tabs, .schema-head .switch, .scheme-radios, .export-row,
+  .units-row, .units-note, details summary, #range-badge{display:none !important;}
+  #manual-controls, #auto-controls{display:none !important;}
+  .grid{grid-template-columns:1fr; display:block;}
+  .app{padding:0; max-width:none;}
+  svg .flow{stroke-dasharray:none !important; animation:none !important;}
+}
