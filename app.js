@@ -153,15 +153,18 @@
         '<td class="num col-heat">' + cellVal(r.breakPt, r.kind) + '</td></tr>';
     }).join('');
 
-    // статус-бейдж — берём предупреждение о типовом диапазоне E14 из validate.js,
-    // чтобы не дублировать одну и ту же проверку в двух местах
+    // статус-бейдж — берём предупреждение из validate.js (сверка расчётной U14
+    // с температурой графика в точке излома Т2'), чтобы не дублировать проверку
     var badge = document.getElementById('range-badge');
     var e14Warn = v.warnings.some(function (w) { return w.field === 'e14'; });
     if (!e14Warn) {
-      badge.className = 'badge ok'; badge.textContent = 'Т после II ступени в норме (32–38 °C) · возврат в сеть ≈ ' + fmt(c.u14) + ' °C';
+      badge.className = 'badge ok'; badge.textContent = 'Возврат в сеть ≈ ' + fmt(c.u14) + ' °C совпадает с графиком в точке излома (Т2\' = ' + fmt(state.t2Break) + ' °C)';
     } else {
-      badge.className = 'badge warn'; badge.textContent = 'Т после II ступени вне типового диапазона · возврат в сеть ≈ ' + fmt(c.u14) + ' °C';
+      badge.className = 'badge warn'; badge.textContent = 'Возврат в сеть ≈ ' + fmt(c.u14) + ' °C отличается от графика в точке излома (Т2\' = ' + fmt(state.t2Break) + ' °C)';
     }
+
+    var e14Hint = document.getElementById('e14-hint-target');
+    if (e14Hint) e14Hint.textContent = 'цель U14 ≈ ' + fmt(state.t2Break) + ' °C';
 
     var fig = document.getElementById('scheme-figure');
     fig.innerHTML = GVS.scheme.renderScheme(state, c);

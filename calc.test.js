@@ -138,6 +138,24 @@ test('validate: обратка выше подачи — ошибка на ве�
   assert.ok(res.errors.some(function (e) { return e.field === 't2Winter'; }), 'ожидали ошибку на t2Winter');
 });
 
+test('validate: предупреждение сверяет U14 с графиком Т2\', а не с фиксированным диапазоном', function () {
+  // Т2'=45 — далеко за пределами старого «типового» 32–38 °C, но это законное
+  // значение графика точки излома, и E14 подобран так, чтобы U14 ему
+  // соответствовал → предупреждения быть не должно, несмотря на T2'=45.
+  var solved = solver.solveE14(Object.assign({}, BASE_STATE, { t2Break: 45 }), 45);
+  assert.notStrictEqual(solved, null, 'цель U14=45 должна быть достижима');
+  var sGood = Object.assign({}, BASE_STATE, { t2Break: 45, e14: solved });
+  var resGood = validateMod.validate(sGood);
+  assert.ok(!resGood.warnings.some(function (w) { return w.field === 'e14'; }),
+    'при U14≈Т2\' предупреждения быть не должно, даже если Т2\' вне старого диапазона 32–38');
+
+  // а вот BASE_STATE (E14=34, Y14=30, T2'=36) даёт U14≈29.96 — заметно отличается
+  // от T2'=36, и это должно быть предупреждением именно по новой логике.
+  var resMismatch = validateMod.validate(BASE_STATE);
+  assert.ok(resMismatch.warnings.some(function (w) { return w.field === 'e14'; }),
+    'при U14, заметно отличающейся от T2\', предупреждение должно появиться');
+});
+
 test('format: fmtPower/fmtFlow дают фиксированное число знаков, разделитель — точка', function () {
   assert.strictEqual(format.fmtPower(60), '60.000');
   assert.strictEqual(format.fmtFlow(2.4), '2.40');
