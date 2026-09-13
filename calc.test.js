@@ -127,6 +127,21 @@ test('solver: физически недостижимая цель возвра�
   assert.strictEqual(e14, null);
 });
 
+test('solver: цель, требующая E14 > 55 °C, достижима, если это ниже T1\' объекта (регрессия)', function () {
+  // Раньше верхняя граница поиска была зашита константой 54.9 °C (годилась только
+  // для демонстрационного T1'=60 с «удобными» целями). На реальных объектах, где
+  // T2' в точке излома далёк от 30-36 °C, нужная E14 может быть и выше 55 °C, но
+  // всё ещё ниже фактического T1' — такая цель обязана находиться, а не считаться
+  // «недостижимой».
+  var s = { qGvs: 830, qOt: 685, t1Winter: 120, t2Winter: 90, t1Break: 60, t2Break: 52, tCold: 5, tHot: 55, y14: 35 };
+  var target = 52;
+  var e14 = solver.solveE14(s, target);
+  assert.notStrictEqual(e14, null, 'цель U14=52 при T1\'=60 должна быть достижима (нужна E14 > 55 °C)');
+  assert.ok(e14 > 55, 'ожидали, что подобранная E14 > 55 °C, получили ' + e14);
+  var r = calc.calculate(Object.assign({}, s, { e14: e14 }));
+  assert.ok(Math.abs(r.u14 - target) < 0.05, 'после подбора U14=' + r.u14 + ', ожидали ' + target);
+});
+
 test('validate: корректные исходные данные не дают ошибок', function () {
   var res = validateMod.validate(BASE_STATE);
   assert.deepStrictEqual(res.errors, []);

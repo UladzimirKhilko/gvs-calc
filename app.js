@@ -166,6 +166,18 @@
     var e14Hint = document.getElementById('e14-hint-target');
     if (e14Hint) e14Hint.textContent = 'цель U14 ≈ ' + fmt(state.t2Break) + ' °C';
 
+    // верхняя граница E14 физически привязана к T1' (точке излома подачи) объекта —
+    // f14 = g14/(t1Break-e14) уходит в бесконечность при e14→t1Break (см. calc.js) —
+    // а не к произвольной константе. У ползунка (ручной режим) и у бисекции в
+    // solver.js (автоматический режим) она должна совпадать, иначе на объектах
+    // с T1' выше демонстрационных 60 °C ручной ввод не даёт задать нужную E14,
+    // а на объектах с T1' ниже — ползунок пускает в физически невозможную область.
+    var e14Max = Math.max(15.1, state.t1Break - 0.1);
+    var e14Slider = document.getElementById('e14');
+    if (e14Slider) e14Slider.max = e14Max;
+    var e14MaxLabel = document.getElementById('e14-max-label');
+    if (e14MaxLabel) e14MaxLabel.textContent = fmt(e14Max) + ' °C';
+
     var fig = document.getElementById('scheme-figure');
     fig.innerHTML = GVS.scheme.renderScheme(state, c);
     fig.querySelector('svg').classList.toggle('flowing', state.animate);
@@ -225,7 +237,11 @@
     if (isNaN(target) || isNaN(y)) { status.textContent = 'Заполните оба поля.'; return; }
     state.y14 = y;
     var solved = GVS.solveE14(state, target);
-    if (solved === null) { status.textContent = 'Цель недостижима в диапазоне 15–55 °C — измените целевую температуру возврата или промежуточную температуру ГВС.'; return; }
+    if (solved === null) {
+      var hiLimit = fmt(Math.max(15.1, state.t1Break - 0.1));
+      status.textContent = 'Цель недостижима в диапазоне 15–' + hiLimit + ' °C (ограничено T1\' = ' + fmt(state.t1Break) + ' °C) — измените целевую температуру возврата или промежуточную температуру ГВС.';
+      return;
+    }
     state.e14 = solved;
     document.getElementById('e14').value = solved;
     document.getElementById('e14-val').textContent = solved.toFixed(1);
