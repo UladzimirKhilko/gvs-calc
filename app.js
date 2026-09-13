@@ -12,14 +12,14 @@
   var state = {
     qGvs: 120, qOt: 419.1,
     t1Winter: 120, t2Winter: 70,
-    t1Break: 60, t2Break: 36,
+    t1Break: 60, t2Break: 30,
     tCold: 5, tHot: 55,
     e14: 34, y14: 30,
     mode: 'manual',
     targetU14: 30, y14Auto: 30,
     scheme: 'separate',
     animate: true,
-    powerUnit: 'Mcal_h',
+    powerUnit: 'Gcal_h',
     flowUnit: 't_h'
   };
 
